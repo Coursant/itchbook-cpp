@@ -53,6 +53,9 @@ void Book::apply(const std::vector<std::uint8_t>& message) {
     }
     const auto locate = static_cast<std::uint16_t>(big_endian(message, 1, 2));
     const auto id = big_endian(message, 11, 8);
+    if (locate == 0) {
+        throw std::runtime_error("zero stock locate for order message");
+    }
 
     if (type == 'A') {
         const char side = static_cast<char>(message[19]);
@@ -65,7 +68,7 @@ void Book::apply(const std::vector<std::uint8_t>& message) {
         if (shares == 0 || price == 0) {
             throw std::runtime_error("zero shares or price");
         }
-        if (orders_.count(id) != 0) {
+        if (seen_refs_.count(id) != 0) {
             throw std::runtime_error("duplicate order reference");
         }
         const auto locate_it = locates_.find(locate);
@@ -81,6 +84,7 @@ void Book::apply(const std::vector<std::uint8_t>& message) {
         total += shares;
         locates_.emplace(locate, symbol);
         orders_.emplace(id, Order{locate, symbol, side, shares, price});
+        seen_refs_.insert(id);
         return;
     }
 

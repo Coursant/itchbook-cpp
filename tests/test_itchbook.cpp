@@ -84,6 +84,8 @@ void lifecycle() {
     expect(itchbook::format_price(*a.bid.price) == "100.0000", "fixed point price");
     book.apply(remove(1, 11));
     expect(!book.bbo("AAA").bid.price, "empty side after final delete");
+    expect_failure([&] { book.apply(add(1, 11, "AAA", 'B', 1, 1000000)); },
+                   "deleted reference reused");
 }
 
 void rejection() {
@@ -97,6 +99,8 @@ void rejection() {
     expect_failure([&] { book.apply(remove(1, 9)); }, "unknown reference accepted");
     expect_failure([&] { book.apply(add(2, 2, "BBB", '?', 10, 10000)); },
                    "invalid side accepted");
+    expect_failure([&] { book.apply(add(0, 2, "BBB", 'B', 10, 10000)); },
+                   "zero locate accepted");
     expect_failure([&] { book.apply(std::vector<std::uint8_t>{'E'}); },
                    "unsupported event accepted");
     expect(book.order_count() == 1 && book.bbo("AAA").bid.shares == 10,

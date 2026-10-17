@@ -7,6 +7,7 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace itchbook {
@@ -41,6 +42,7 @@ private:
         std::map<std::uint32_t, std::uint64_t> asks;
     };
     std::unordered_map<std::uint64_t, Order> orders_;
+    std::unordered_set<std::uint64_t> seen_refs_;
     std::unordered_map<std::uint16_t, std::string> locates_;
     std::map<std::string, Levels> books_;
 };

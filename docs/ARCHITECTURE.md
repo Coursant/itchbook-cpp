@@ -8,7 +8,7 @@
 
 ## 数据模型
 
-- `order_ref → {locate, symbol, side, remaining, price}` 为全日订单索引。order_ref 按规范当日唯一；重复 Add 是错误。
+- `order_ref → {locate, symbol, side, remaining, price}` 为活跃订单索引；另保存当日已见 ID 集合。order_ref 按规范当日唯一，删除后复用仍是错误。M1 为正确性保留这份额外索引，性能阶段再评估空间成本。
 - 每个 symbol 有买、卖两棵按整数价格排序的价位树，节点保存该价位**可展示剩余股数**。买方取最大价，卖方取最小价。M1 不保存队列优先级，因为输出仅为价位聚合与 BBO。
 - `locate → symbol` 从 A 消息建立临时映射，后续同一 locate 不能指向另一 symbol。完整版本将由 Stock Directory (R) 建立正式映射，并校验 A/F 中的 symbol。
 - 价格为 `uint32` Price(4)，例如 `1000000` 表示 `100.0000`；不使用浮点存储。数量聚合使用 `uint64`，每次加法检查溢出。
